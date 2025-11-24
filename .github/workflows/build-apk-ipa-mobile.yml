@@ -1,17 +1,74 @@
-name: Build APK
+name: Build APK and IPA
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
 
 jobs:
   build-apk:
     runs-on: ubuntu-latest
     
     steps:
-    # ... الخطوات الأخرى ...
+    - name: Checkout code
+      uses: actions/checkout@v4
     
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'
+        java-version: '11'
+    
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.13.0'
+        
+    - name: Enable Flutter
+      run: flutter config --no-analytics
+      
+    - name: Get Flutter dependencies
+      run: flutter pub get
+      
+    - name: Run Flutter tests
+      run: flutter test
+      
     - name: Build APK
       run: flutter build apk --release
       
     - name: Upload APK
-      uses: actions/upload-artifact@v4   # ✅ تم التغيير إلى v4
+      uses: actions/upload-artifact@v4
       with:
         name: release-apk
         path: build/app/outputs/flutter-apk/app-release.apk
+        retention-days: 30
+
+  build-ipa:
+    runs-on: macos-latest
+    if: false  # Set to true if you have iOS signing setup
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.13.0'
+        
+    - name: Enable Flutter
+      run: flutter config --no-analytics
+      
+    - name: Get Flutter dependencies
+      run: flutter pub get
+      
+    - name: Build IPA
+      run: flutter build ipa --release --no-codesign
+      
+    - name: Upload IPA
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-ipa
+        path: build/ios/ipa/*.ipa
+        retention-days: 30
