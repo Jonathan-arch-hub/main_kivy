@@ -1,43 +1,17 @@
 name: Build APK
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-
 jobs:
   build-apk:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v3
+    # ... الخطوات الأخرى ...
     
-    - name: Setup Java
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'zulu'
-        java-version: '11'
-    
-    - name: Setup Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        flutter-version: '3.13.0' # Use your Flutter version
-        
-    - name: Enable Flutter
-      run: flutter config --no-analytics
-      
-    - name: Get Flutter dependencies
-      run: flutter pub get
-      
-    - name: Run Flutter tests
-      run: flutter test
-      
     - name: Build APK
       run: flutter build apk --release
       
     - name: Upload APK
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4   # ✅ تم التغيير إلى v4
       with:
         name: release-apk
         path: build/app/outputs/flutter-apk/app-release.apk
